@@ -1,0 +1,42 @@
+[shell]
+args = ['--login']
+program = "/usr/bin/zsh"
+
+[cursor]
+style = "Beam"
+
+[font]
+size = 12.0
+
+
+
+[window]
+startup_mode = "Windowed"
+dynamic_padding = true
+opacity = 1.0
+
+[window.padding]
+x = 3
+y = 0
+
+#[window.dimensions]
+#columns = 90
+#lines = 25
+
+[colors.normal]
+black=   '#141d2b'
+red=     '#ff3e3e'
+green=   '#9fef00'
+yellow=  '#ffaf00'
+blue=    '#0086ff'
+magenta= '#9f00ff'
+cyan=    '#2ee7b6'
+white=   '#a4b1cd'
+
+[colors.primary]
+background = "#141d2b"
+foreground ="#ffffff"
+
+[colors.cursor]
+text = "CellBackground"
+cursor = "CellForeground"
