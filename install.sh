@@ -67,7 +67,7 @@ else
     fi
 fi
 
-if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh -O /opt/vpn.sh 2>/dev/null; then
+if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh -O /opt/vpn.sh 2>/dev/null && sudo chmod +x /opt/vpn.sh; then
     echo "${GREEN}vpn.sh script downloaded successfully.${NOCOLOR}"
 else
     echo "${RED}Failed to download vpn.sh script.${NOCOLOR}"
@@ -98,6 +98,39 @@ else
     sudo mkdir -p ~/.config/alacritty &&
     sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/alacritty.toml -O ~/.config/alacritty/alacritty.toml 2>/dev/null &&
     echo "${GREEN}Alacritty configuration downloaded successfully.${NOCOLOR}"
+fi
+
+# Download aliases.sh to ~/.config/
+if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/aliases.sh -O ~/.config/aliases.sh 2>/dev/null; then
+    echo "Aliases script downloaded successfully."
+else
+    echo "Failed to download aliases script."
+    exit 1
+fi
+
+# Check the current shell
+SHELL_TYPE=$(basename "$SHELL")
+
+# Source aliases.sh in the appropriate shell configuration file
+if [ "$SHELL_TYPE" = "bash" ]; then
+    # Add source command to ~/.bashrc
+    if ! grep -q "source ~/.config/aliases.sh" ~/.bashrc; then
+        echo "source ~/.config/aliases.sh" >> ~/.bashrc
+        echo "Aliases sourced in ~/.bashrc"
+    else
+        echo "Aliases already sourced in ~/.bashrc"
+    fi
+elif [ "$SHELL_TYPE" = "zsh" ]; then
+    # Add source command to ~/.zshrc
+    if ! grep -q "source ~/.config/aliases.sh" ~/.zshrc; then
+        echo "source ~/.config/aliases.sh" >> ~/.zshrc
+        echo "Aliases sourced in ~/.zshrc"
+    else
+        echo "Aliases already sourced in ~/.zshrc"
+    fi
+else
+    echo "Unsupported shell: $SHELL_TYPE"
+    exit 1
 fi
 
 tmux new -d -s __noop >/dev/null 2>&1 || true 
