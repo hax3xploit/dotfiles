@@ -19,11 +19,8 @@ LIGHTCYAN='\033[1;36m'
 WHITE='\033[1;37m'
 
 bar="---------------------------------------"
-
+# /bin/zsh install.sh
 echo -e "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
-
-clear
-echo "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
 
 is_app_installed() {
     type "$1" &>/dev/null
@@ -53,7 +50,7 @@ if sudo [ -f "/opt/vpn.sh" ]; then
     sudo rm /opt/vpn.sh
 fi
 
-echo "$bar\n\t ${LIGHTPURPLE} Install plugins ${NOCOLOR}\n$bar"
+echo -e "$bar\n\t ${LIGHTPURPLE} Install plugins ${NOCOLOR}\n$bar"
 
 # Check if TPM directory already exists
 if [ -d "$HOME/.tmux/plugins/tpm" ]; then
@@ -129,6 +126,13 @@ elif [ "$SHELL_TYPE" = "zsh" ]; then
     else
         echo "Aliases already sourced in ~/.zshrc"
     fi
+    
+    # Check if the current shell is Zsh
+if [[ "$(basename "$SHELL")" != "zsh" ]]; then
+    # If not, print an error message and exit
+    echo "Error: Oh My Zsh can't be loaded from a non-Zsh shell. You need to run zsh instead."
+    exit 1
+fi
     source ~/.zshrc
 else
     echo "Unsupported shell: $SHELL_TYPE"
