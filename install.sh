@@ -20,7 +20,7 @@ WHITE='\033[1;37m'
 
 bar="---------------------------------------"
 
-echo "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
+echo -e "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
 
 clear
 echo "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
@@ -33,23 +33,23 @@ if ! is_app_installed tmux; then
     printf "WARNING: \"tmux\" command is not found.\n"
 fi
 
-echo "${RED} Installing all dependencies ${NOCOLOR} \n"
+echo -e "${RED} Installing all dependencies ${NOCOLOR} \n"
 
 if sudo apt-get install tmux wget git -y 2>/dev/null; then
-    echo "$bar\n\t ${LIGHTPURPLE} Dependencies Installed ${NOCOLOR} \n$bar"
-    echo "${GREEN}Tmux ✔️ ${NOCOLOR} \n"
+    echo -e "$bar\n\t ${LIGHTPURPLE} Dependencies Installed ${NOCOLOR} \n$bar"
+    echo -e "${GREEN}Tmux ✔️ ${NOCOLOR} \n"
     sleep 1s
-    echo "${GREEN}Wget ✔️ ${NOCOLOR} \n"
+    echo -e "${GREEN}Wget ✔️ ${NOCOLOR} \n"
     sleep 1s
-    echo "${GREEN}Git  ✔️ ${NOCOLOR} \n"
+    echo -e "${GREEN}Git  ✔️ ${NOCOLOR} \n"
 else
-    echo "${RED}Failed to install dependencies.${NOCOLOR}"
+    echo -e "${RED}Failed to install dependencies.${NOCOLOR}"
     exit 1
 fi
 
 # Remove existing vpn.sh if present
 if sudo [ -f "/opt/vpn.sh" ]; then
-    echo "$bar\n\t ${LIGHTPURPLE} Removing existing vpn.sh ${NOCOLOR}\n$bar"
+    echo -e "$bar\n\t ${LIGHTPURPLE} Removing existing vpn.sh ${NOCOLOR}\n$bar"
     sudo rm /opt/vpn.sh
 fi
 
@@ -57,51 +57,51 @@ echo "$bar\n\t ${LIGHTPURPLE} Install plugins ${NOCOLOR}\n$bar"
 
 # Check if TPM directory already exists
 if [ -d "$HOME/.tmux/plugins/tpm" ]; then
-    echo "${ORANGE}TPM directory already exists. Skipping cloning.${NOCOLOR}"
+    echo -e "${ORANGE}TPM directory already exists. Skipping cloning.${NOCOLOR}"
 else
     if sudo git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm 2>/dev/null; then
-        echo "${GREEN}Plugins cloned successfully.${NOCOLOR}"
+        echo -e "${GREEN}Plugins cloned successfully.${NOCOLOR}"
     else
-        echo "${RED}Failed to clone plugins.${NOCOLOR}"
+        echo -e "${RED}Failed to clone plugins.${NOCOLOR}"
         exit 1
     fi
 fi
 
 if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh -O /opt/vpn.sh 2>/dev/null && sudo chmod +x /opt/vpn.sh; then
-    echo "${GREEN}vpn.sh script downloaded successfully.${NOCOLOR}"
+    echo -e "${GREEN}vpn.sh script downloaded successfully.${NOCOLOR}"
 else
-    echo "${RED}Failed to download vpn.sh script.${NOCOLOR}"
+    echo -e "${RED}Failed to download vpn.sh script.${NOCOLOR}"
     exit 1
 fi
 
 # Download .tmux.conf if not present
 if [ ! -f "$HOME/.tmux.conf" ]; then
-    echo "$bar\n\t ${LIGHTPURPLE} Downloading .tmux.conf ${NOCOLOR}\n$bar"
+    echo -e "$bar\n\t ${LIGHTPURPLE} Downloading .tmux.conf ${NOCOLOR}\n$bar"
     sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/.tmux.conf -O $HOME/.tmux.conf 2>/dev/null
-    echo "${GREEN}.tmux.conf downloaded successfully.${NOCOLOR}"
+    echo -e "${GREEN}.tmux.conf downloaded successfully.${NOCOLOR}"
 else
-    echo "${ORANGE}.tmux.conf already exists. Skipping download.${NOCOLOR}"
+    echo -e "${ORANGE}.tmux.conf already exists. Skipping download.${NOCOLOR}"
 fi
 
 # Remove existing alacritty.toml if present
 if sudo [ -f "$HOME/.config/alacritty/alacritty.toml" ]; then
-    echo "$bar\n\t ${LIGHTPURPLE} Removing existing alacritty.toml ${NOCOLOR}\n$bar"
+    echo -e "$bar\n\t ${LIGHTPURPLE} Removing existing alacritty.toml ${NOCOLOR}\n$bar"
     sudo rm $HOME/.config/alacritty/alacritty.toml
 fi
 
 # Check if Alacritty is installed
 if ! is_app_installed alacritty; then
-    echo "${ORANGE}Alacritty is not installed. Skipping the download of alacritty.toml.${NOCOLOR}"
+    echo -e "${ORANGE}Alacritty is not installed. Skipping the download of alacritty.toml.${NOCOLOR}"
 else
-    echo "$bar\n\t ${LIGHTPURPLE} Downloading alacritty.toml ${NOCOLOR}\n$bar"
+    echo -e "$bar\n\t ${LIGHTPURPLE} Downloading alacritty.toml ${NOCOLOR}\n$bar"
 
     sudo mkdir -p ~/.config/alacritty &&
     sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/alacritty.toml -O ~/.config/alacritty/alacritty.toml 2>/dev/null &&
-    echo "${GREEN}Alacritty configuration downloaded successfully.${NOCOLOR}"
+    echo -e "${GREEN}Alacritty configuration downloaded successfully.${NOCOLOR}"
 fi
 
 # Download aliases.sh to ~/.config/
-if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/aliases.sh -O ~/.config/aliases.sh 2>/dev/null; then
+if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/aliases.sh -O ~/.config/aliases.sh 2>/dev/null && sudo chmod +x ~/.config/aliases.sh; then
     echo "Aliases script downloaded successfully."
 else
     echo "Failed to download aliases script."
@@ -120,6 +120,7 @@ if [ "$SHELL_TYPE" = "bash" ]; then
     else
         echo "Aliases already sourced in ~/.bashrc"
     fi
+    source ~/.bashrc
 elif [ "$SHELL_TYPE" = "zsh" ]; then
     # Add source command to ~/.zshrc
     if ! grep -q "source ~/.config/aliases.sh" ~/.zshrc; then
@@ -128,6 +129,7 @@ elif [ "$SHELL_TYPE" = "zsh" ]; then
     else
         echo "Aliases already sourced in ~/.zshrc"
     fi
+    source ~/.zshrc
 else
     echo "Unsupported shell: $SHELL_TYPE"
     exit 1
