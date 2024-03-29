@@ -20,12 +20,10 @@ WHITE='\033[1;37m'
 
 bar="---------------------------------------"
 
-echo -e "\n$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar\n"
+echo "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
 
-echo "Make sure you're root before installing the tools"
-sleep 4s
 clear
-echo -e "\n$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar\n"
+echo "$bar\n\t ${RED}EZ Tmux by @hax_3xploit ${NOCOLOR} \n$bar"
 
 is_app_installed() {
     type "$1" &>/dev/null
@@ -35,40 +33,71 @@ if ! is_app_installed tmux; then
     printf "WARNING: \"tmux\" command is not found.\n"
 fi
 
-echo -e "${RED} Installing all dependencies ${NOCOLOR} \n"
+echo "${RED} Installing all dependencies ${NOCOLOR} \n"
 
 if sudo apt-get install tmux wget git -y 2>/dev/null; then
-    echo -e "\n$bar\n\t ${LIGHTPURPLE} Dependencies Installed ${NOCOLOR} \n$bar\n"
-    echo -e "${GREEN}Tmux ✔️ ${NOCOLOR} \n"
+    echo "$bar\n\t ${LIGHTPURPLE} Dependencies Installed ${NOCOLOR} \n$bar"
+    echo "${GREEN}Tmux ✔️ ${NOCOLOR} \n"
     sleep 1s
-    echo -e "${GREEN}Wget ✔️ ${NOCOLOR} \n"
+    echo "${GREEN}Wget ✔️ ${NOCOLOR} \n"
     sleep 1s
-    echo -e "${GREEN}Git  ✔️ ${NOCOLOR} \n"
+    echo "${GREEN}Git  ✔️ ${NOCOLOR} \n"
 else
-    echo -e "${RED}Failed to install dependencies.${NOCOLOR}"
+    echo "${RED}Failed to install dependencies.${NOCOLOR}"
     exit 1
 fi
 
-echo -e "\n$bar\n\t ${LIGHTPURPLE} Install plugins ${NOCOLOR}\n$bar\n"
+# Remove existing vpn.sh if present
+if sudo [ -f "/opt/vpn.sh" ]; then
+    echo "$bar\n\t ${LIGHTPURPLE} Removing existing vpn.sh ${NOCOLOR}\n$bar"
+    sudo rm /opt/vpn.sh
+fi
 
-if git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm 2>/dev/null &&
-    wget https://raw.githubusercontent.com/hax3xploit/EZ-Tmux/master/tmux.conf -O $HOME/.tmux.conf 2>/dev/null &&
-    sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh -O /opt/vpn.sh 2>/dev/null; then
-    echo -e "${GREEN}Plugins cloned, tmux configuration file downloaded, and vpn.sh script downloaded successfully.${NOCOLOR}"
+echo "$bar\n\t ${LIGHTPURPLE} Install plugins ${NOCOLOR}\n$bar"
+
+# Check if TPM directory already exists
+if [ -d "$HOME/.tmux/plugins/tpm" ]; then
+    echo "${ORANGE}TPM directory already exists. Skipping cloning.${NOCOLOR}"
 else
-    echo -e "${RED}Failed to clone plugins, download tmux configuration file, or download vpn.sh script.${NOCOLOR}"
+    if sudo git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm 2>/dev/null; then
+        echo "${GREEN}Plugins cloned successfully.${NOCOLOR}"
+    else
+        echo "${RED}Failed to clone plugins.${NOCOLOR}"
+        exit 1
+    fi
+fi
+
+if sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh -O /opt/vpn.sh 2>/dev/null; then
+    echo "${GREEN}vpn.sh script downloaded successfully.${NOCOLOR}"
+else
+    echo "${RED}Failed to download vpn.sh script.${NOCOLOR}"
     exit 1
+fi
+
+# Download .tmux.conf if not present
+if [ ! -f "$HOME/.tmux.conf" ]; then
+    echo "$bar\n\t ${LIGHTPURPLE} Downloading .tmux.conf ${NOCOLOR}\n$bar"
+    sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/.tmux.conf -O $HOME/.tmux.conf 2>/dev/null
+    echo "${GREEN}.tmux.conf downloaded successfully.${NOCOLOR}"
+else
+    echo "${ORANGE}.tmux.conf already exists. Skipping download.${NOCOLOR}"
+fi
+
+# Remove existing alacritty.toml if present
+if sudo [ -f "$HOME/.config/alacritty/alacritty.toml" ]; then
+    echo "$bar\n\t ${LIGHTPURPLE} Removing existing alacritty.toml ${NOCOLOR}\n$bar"
+    sudo rm $HOME/.config/alacritty/alacritty.toml
 fi
 
 # Check if Alacritty is installed
 if ! is_app_installed alacritty; then
-    echo -e "${ORANGE}Alacritty is not installed. Skipping the download of alacritty.toml.${NOCOLOR}"
+    echo "${ORANGE}Alacritty is not installed. Skipping the download of alacritty.toml.${NOCOLOR}"
 else
-    echo -e "\n$bar\n\t ${LIGHTPURPLE} Downloading alacritty.toml ${NOCOLOR}\n$bar\n"
+    echo "$bar\n\t ${LIGHTPURPLE} Downloading alacritty.toml ${NOCOLOR}\n$bar"
 
-    mkdir -p ~/.config/alacritty &&
-    wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/alacritty.toml -O ~/.config/alacritty/alacritty.toml 2>/dev/null &&
-    echo -e "${GREEN}Alacritty configuration downloaded successfully.${NOCOLOR}"
+    sudo mkdir -p ~/.config/alacritty &&
+    sudo wget https://raw.githubusercontent.com/hax3xploit/dotfiles/master/alacritty.toml -O ~/.config/alacritty/alacritty.toml 2>/dev/null &&
+    echo "${GREEN}Alacritty configuration downloaded successfully.${NOCOLOR}"
 fi
 
 tmux new -d -s __noop >/dev/null 2>&1 || true 
