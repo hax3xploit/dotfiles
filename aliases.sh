@@ -48,10 +48,15 @@ alias kvpn='sudo pkill openvpn'
 #   Local HTTP
 #########################
 
-alias hostit='python3 -m http.server -d /opt/ 8000'
-
+alias hostit='python3 -m http.server -d $(pwd) 8000'
 
 #######################
+
+#########################
+#   SMB SHARE
+#########################
+
+alias smbup='sudo impacket-smbserver -smb2support share $(pwd)'
 
 #######################
 
