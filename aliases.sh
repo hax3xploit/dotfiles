@@ -36,10 +36,10 @@ alias adb_unset_proxy='adb shell settings put global http_proxy :0'
 #   OpenVPNs
 ##################
 
-alias htbon='sudo openvpn ~/.ovpnconfig/htb-sg.ovpn 1>/dev/null &' 
-alias htbfort='sudo openvpn ~/.ovpnconfig/htb-fortress.ovpn 1>/dev/null &'
-alias htbrel='sudo openvpn ~/.ovpnconfig/htb-release.ovpn 1>/dev/null &'
-alias thm_vpn='sudo openvpn ~/.ovpnconfig/THM_vpn.ovpn 1>/dev/null &'
+alias htbon='sudo openvpn ~/.ovpnconfig/htb-sg.ovpn 1>/dev/null' 
+alias htbfort='sudo openvpn ~/.ovpnconfig/htb-fortress.ovpn 1>/dev/null'
+alias htbrel='sudo openvpn ~/.ovpnconfig/htb-release.ovpn 1>/dev/null'
+alias thm_vpn='sudo openvpn ~/.ovpnconfig/THM_vpn.ovpn 1>/dev/null'
 
 alias kvpn='sudo pkill openvpn'
 
