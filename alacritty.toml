@@ -1,4 +1,4 @@
-[terminal.shell]
+[terminal]
 args = ['--login']
 program = "/usr/bin/zsh"
 
