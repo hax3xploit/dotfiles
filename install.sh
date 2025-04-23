@@ -86,8 +86,8 @@ info "NOTE: To enable your custom configs, add this line to your .zshrc manually
 echo 'source ~/.shell_extras.zsh'
 
 # ──────────────[ Optional: VPN Script Setup ]──────────────
-if wget -q -O /opt/vpn.sh https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh; then
-    chmod +x /opt/vpn.sh
+if sudo wget -q -O /opt/vpn.sh https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh; then
+    sudo chmod +x /opt/vpn.sh
     info "vpn.sh installed to /opt/vpn.sh"
 else
     warn "vpn.sh fetch failed (optional)."
