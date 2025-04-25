@@ -49,14 +49,49 @@ else
     warn "Alacritty source already exists."
 fi
 
-cd "$HOME/alacritty"
-info "Building Alacritty..."
-cargo build --release || error "Alacritty build failed."
-sudo cp target/release/alacritty /usr/local/bin/
-sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
-sudo desktop-file-install extra/linux/Alacritty.desktop
-sudo update-desktop-database || warn "Desktop DB update failed."
-sudo tic -xe alacritty,alacritty-direct extra/alacritty.info || warn "Termininfo setup failed."
+if cd "$HOME/alacritty"; then
+    info "Building Alacritty..."
+else
+    warn "Failed to change directory to \$HOME/alacritty. Skipping Alacritty build."
+    cd "$HOME"
+fi
+
+if cargo build --release; then
+    info "Alacritty built successfully."
+else
+    warn "Alacritty build failed. Skipping installation steps."
+    cd "$HOME"
+fi
+
+if sudo cp target/release/alacritty /usr/local/bin/; then
+    info "Binary installed to /usr/local/bin."
+else
+    warn "Failed to copy alacritty binary."
+fi
+
+if sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg; then
+    info "Icon installed."
+else
+    warn "Failed to install icon."
+fi
+
+if sudo desktop-file-install extra/linux/Alacritty.desktop; then
+    info "Desktop file installed."
+else
+    warn "Failed to install desktop entry."
+fi
+
+if sudo update-desktop-database; then
+    info "Desktop database updated."
+else
+    warn "Desktop DB update failed."
+fi
+
+if sudo tic -xe alacritty,alacritty-direct extra/alacritty.info; then
+    info "Termininfo compiled."
+else
+    warn "Termininfo setup failed."
+fi
 
 cd "$HOME"
 
@@ -82,8 +117,17 @@ wget -q -O "$HOME/aliases.sh" https://raw.githubusercontent.com/hax3xploit/dotfi
 info "Fetching shell extras (~/.shell_extras.zsh)..."
 wget -q -O "$HOME/.shell_extras.zsh" https://raw.githubusercontent.com/hax3xploit/dotfiles/master/.shell_extras.zsh || warn "shell_extras.zsh fetch failed."
 
-info "NOTE: To enable your custom configs, add this line to your .zshrc manually:"
-echo 'source ~/.shell_extras.zsh'
+# ──────────────[ Source .shell_extras.zsh into .zshrc ]──────────────
+if [ -f "$HOME/.shell_extras.zsh" ]; then
+    if ! grep -q 'source ~/.shell_extras.zsh' "$HOME/.zshrc" 2>/dev/null; then
+        echo 'source ~/.shell_extras.zsh' >> "$HOME/.zshrc"
+        info "Appended source line to .zshrc"
+    else
+        info "source ~/.shell_extras.zsh already in .zshrc"
+    fi
+else
+    warn "Skipped appending to .zshrc — shell extras not downloaded."
+fi
 
 # ──────────────[ Optional: VPN Script Setup ]──────────────
 if sudo wget -q -O /opt/vpn.sh https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh; then
@@ -102,4 +146,4 @@ tmux kill-session -t __noop >/dev/null 2>&1 || true
 
 # ──────────────[ Done ]──────────────
 info "✅ Installation completed."
-info "🧠 Remember to run: source ~/.shell_extras.zsh OR add it to your .zshrc"
+info "🧠 If not sourced automatically, run: source ~/.shell_extras.zsh"
