@@ -144,6 +144,58 @@ tmux set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins"
 "$HOME/.tmux/plugins/tpm/bin/install_plugins" || warn "TPM plugin install failed."
 tmux kill-session -t __noop >/dev/null 2>&1 || true
 
+# ──────────────[ Zsh Environment Setup ]──────────────
+info "✨ Installing Zsh and Oh My Zsh (optional)..."
+$INSTALL install -y zsh || warn "Zsh installation failed."
+
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || warn "Oh My Zsh installation failed."
+else
+    info "Oh My Zsh already installed."
+fi
+
+info "🎨 Installing Powerlevel10k theme and Zsh plugins..."
+
+export ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
+
+if [ ! -d "${ZSH_CUSTOM}/themes/powerlevel10k" ]; then
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM}/themes/powerlevel10k" || warn "Powerlevel10k clone failed."
+else
+    info "Powerlevel10k already exists."
+fi
+
+if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" || warn "zsh-autosuggestions clone failed."
+else
+    info "zsh-autosuggestions already exists."
+fi
+
+if [ ! -d "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" || warn "zsh-syntax-highlighting clone failed."
+else
+    info "zsh-syntax-highlighting already exists."
+fi
+
+
+# ──────────────[ Configure .zshrc for Powerlevel10k and Plugins ]──────────────
+if [ -f "$HOME/.zshrc" ]; then
+    sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
+    
+    if ! grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
+        sed -i 's/^plugins=(/plugins=(zsh-autosuggestions zsh-syntax-highlighting /' "$HOME/.zshrc"
+        info "Updated .zshrc plugins with zsh-autosuggestions and zsh-syntax-highlighting."
+    else
+        info "zsh plugins already set in .zshrc."
+    fi
+else
+    warn ".zshrc not found — plugin config skipped."
+fi
+
+
+info "📦 Installing bat (batcat)..."
+$INSTALL install -y bat || warn "bat installation failed."
+
+
 # ──────────────[ Done ]──────────────
 info "✅ Installation completed."
 info "🧠 If not sourced automatically, run: source ~/.shell_extras.zsh"
