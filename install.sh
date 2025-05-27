@@ -144,7 +144,6 @@ tmux set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins"
 "$HOME/.tmux/plugins/tpm/bin/install_plugins" || warn "TPM plugin install failed."
 tmux kill-session -t __noop >/dev/null 2>&1 || true
 
-
 # ──────────────[ Zsh Environment Setup ]──────────────
 info "✨ Installing Zsh and Oh My Zsh (optional)..."
 $INSTALL install -y zsh || warn "Zsh installation failed."
@@ -177,38 +176,28 @@ else
     info "zsh-syntax-highlighting already exists."
 fi
 
-# ──────────────[ Configure .zshrc for Theme and Plugins ]──────────────
+
+# ──────────────[ Configure .zshrc for Powerlevel10k and Plugins ]──────────────
 if [ -f "$HOME/.zshrc" ]; then
     sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
     
-    if grep -q "^plugins=" "$HOME/.zshrc"; then
-        sed -i 's/^plugins=(.*/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$HOME/.zshrc"
+    if ! grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
+        sed -i 's/^plugins=(/plugins=(zsh-autosuggestions zsh-syntax-highlighting /' "$HOME/.zshrc"
+        info "Updated .zshrc plugins with zsh-autosuggestions and zsh-syntax-highlighting."
     else
-        echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting)' >> "$HOME/.zshrc"
+        info "zsh plugins already set in .zshrc."
     fi
-
-    if ! grep -q 'source ~/.p10k.zsh' "$HOME/.zshrc"; then
-        echo '[ -f ~/.p10k.zsh ] && source ~/.p10k.zsh' >> "$HOME/.zshrc"
-    fi
-    info ".zshrc configured with theme and plugins."
 else
     warn ".zshrc not found — plugin config skipped."
 fi
 
-# ──────────────[ Optional: Download .p10k.zsh ]──────────────
-info "Fetching .p10k.zsh (optional)..."
-wget -q -O "$HOME/.p10k.zsh" https://raw.githubusercontent.com/hax3xploit/dotfiles/master/.p10k.zsh || warn ".p10k.zsh fetch failed."
-
-# ──────────────[ Change Default Shell to Zsh ]──────────────
 if command -v zsh >/dev/null && [ "$SHELL" != "$(command -v zsh)" ]; then
     chsh -s "$(command -v zsh)" || warn "Could not change default shell to zsh."
     info "Default shell set to zsh."
 fi
 
-# ──────────────[ Install bat ]──────────────
 info "📦 Installing bat (batcat)..."
 $INSTALL install -y bat || warn "bat installation failed."
-
 
 
 # ──────────────[ Done ]──────────────
