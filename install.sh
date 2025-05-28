@@ -35,7 +35,8 @@ $INSTALL install -y \
     make build-essential libssl-dev zlib1g-dev \
     libbz2-dev libreadline-dev libsqlite3-dev \
     llvm libncursesw5-dev xz-utils tk-dev \
-    libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev || error "Failed to install required packages."
+    libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev \
+    golang || error "Failed to install required packages."
 
 # ───[ Install Rust & Cargo ]───
 if ! command -v cargo &>/dev/null; then
@@ -183,6 +184,40 @@ curl -s https://gist.githubusercontent.com/lifepillar/09a44b8cf0f9397465614e6229
     bash 24-bit-color.sh && \
     info "True color test script executed." || \
     warn "Failed to run 24-bit color test."
+
+# ───[ Install Nim ]───
+install_nim() {
+  if ! command -v nim &>/dev/null; then
+    info "Installing Nim..."
+    curl https://nim-lang.org/choosenim/init.sh -sSf | sh || warn "Nim installation failed."
+  else
+    info "Nim is already installed."
+  fi
+}
+install_nim
+
+# ───[ Install Poetry ]───
+install_poetry() {
+  if ! command -v poetry &>/dev/null; then
+    info "Installing Poetry..."
+    curl -sSL https://install.python-poetry.org | python3 - || warn "Poetry installation failed."
+  else
+    info "Poetry is already installed."
+  fi
+}
+install_poetry
+
+# ───[ Install FZF ]───
+install_fzf() {
+  if [ ! -d "$HOME/.fzf" ]; then
+    info "Cloning FZF..."
+    git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install || warn "FZF install script failed."
+  else
+    info "FZF already exists. Running install script again to ensure setup..."
+    ~/.fzf/install || warn "FZF install script failed."
+  fi
+}
+install_fzf
 
 # ───[ Done ]───
 info "✅ Installation completed."
