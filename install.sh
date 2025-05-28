@@ -77,20 +77,21 @@ else
     info "TPM already exists."
 fi
 
-# ───[ Download Dotfiles ]───
-info "Fetching .tmux.conf..."
-wget -q -O "$HOME/.tmux.conf" https://raw.githubusercontent.com/hax3xploit/dotfiles/master/.tmux.conf || error "tmux.conf fetch failed."
+# ───[ Copy Dotfiles Locally ]───
+info "Copying .tmux.conf from local directory..."
+cp ./tmux.conf "$HOME/.tmux.conf" || error ".tmux.conf copy failed."
 
-info "Fetching alacritty.toml..."
+info "Copying alacritty.toml from local directory..."
 mkdir -p "$HOME/.config/alacritty"
-wget -q -O "$HOME/.config/alacritty/alacritty.toml" https://raw.githubusercontent.com/hax3xploit/dotfiles/master/alacritty.toml || error "alacritty.toml fetch failed."
+cp ./alacritty.toml "$HOME/.config/alacritty/alacritty.toml" || error "alacritty.toml copy failed."
 
 # ───[ Optional: VPN Script Setup ]───
-if sudo wget -q -O /opt/vpn.sh https://raw.githubusercontent.com/hax3xploit/dotfiles/master/vpn.sh; then
+if [ -f ./vpn.sh ]; then
+    sudo cp ./vpn.sh /opt/vpn.sh
     sudo chmod +x /opt/vpn.sh
     info "vpn.sh installed to /opt/vpn.sh"
 else
-    warn "vpn.sh fetch failed (optional)."
+    warn "vpn.sh not found in current directory (optional)."
 fi
 
 # ───[ Auto-Install Tmux Plugins ]───
@@ -121,20 +122,29 @@ git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/
 git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" 2>/dev/null || info "zsh-syntax-highlighting already exists."
 git clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$ZSH_CUSTOM/plugins/fast-syntax-highlighting" 2>/dev/null || info "fast-syntax-highlighting already exists."
 
-# Ensure .zshrc exists
-[ -f "$HOME/.zshrc" ] || touch "$HOME/.zshrc"
-
-# Configure ZSH_THEME and plugins
-sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
-if ! grep -q "zsh-autosuggestions" "$HOME/.zshrc"; then
-    echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting)' >> "$HOME/.zshrc"
-    info "Appended plugins to .zshrc"
+# ───[ Copy multiline theme and shell extras from local directory ]───
+if [ -f "./multiline.zsh-theme" ]; then
+    cp "./multiline.zsh-theme" "$ZSH_CUSTOM/themes/multiline.zsh-theme"
+    info "Custom multiline.zsh-theme installed to $ZSH_CUSTOM/themes."
+else
+    warn "multiline.zsh-theme not found in current directory."
 fi
 
-# Fetch and source .shell_extras.zsh
-info "Fetching shell extras (~/.shell_extras.zsh)..."
-wget -q -O "$HOME/.shell_extras.zsh" https://raw.githubusercontent.com/hax3xploit/dotfiles/master/.shell_extras.zsh || warn "shell_extras.zsh fetch failed."
+if [ -f "./.shell_extras.zsh" ]; then
+    cp "./.shell_extras.zsh" "$HOME/.shell_extras.zsh"
+    info ".shell_extras.zsh copied to home directory."
+else
+    warn ".shell_extras.zsh not found in current directory."
+fi
 
+# ───[ Replace .zshrc with local copy and back up existing ]───
+if [ -f "$HOME/.zshrc" ]; then
+    cp "$HOME/.zshrc" "$HOME/.zshrc.backup"
+    info "Backed up existing .zshrc to .zshrc.backup"
+fi
+cp ./.zshrc "$HOME/.zshrc" && info "Copied .zshrc from local directory."
+
+# Append shell extras sourcing if not already present
 if [ -f "$HOME/.shell_extras.zsh" ]; then
     if ! grep -q 'source ~/.shell_extras.zsh' "$HOME/.zshrc" 2>/dev/null; then
         echo 'source ~/.shell_extras.zsh' >> "$HOME/.zshrc"
@@ -143,7 +153,7 @@ if [ -f "$HOME/.shell_extras.zsh" ]; then
         info "source ~/.shell_extras.zsh already in .zshrc"
     fi
 else
-    warn "Skipped appending to .zshrc — shell extras not downloaded."
+    warn "Skipped appending to .zshrc — shell extras not available."
 fi
 
 # Change default shell to zsh
@@ -166,6 +176,13 @@ if [ ! -d "$HOME/.pyenv" ]; then
 else
     info "pyenv already installed."
 fi
+
+# ───[ Setup 24-bit Color Test Script ]───
+info "Downloading 24-bit color test script for terminal support..."
+curl -s https://gist.githubusercontent.com/lifepillar/09a44b8cf0f9397465614e622979107f/raw/24-bit-color.sh -o 24-bit-color.sh && \
+    bash 24-bit-color.sh && \
+    info "True color test script executed." || \
+    warn "Failed to run 24-bit color test."
 
 # ───[ Done ]───
 info "✅ Installation completed."
