@@ -80,7 +80,7 @@ fi
 
 # ───[ Copy Dotfiles Locally ]───
 info "Copying .tmux.conf from local directory..."
-cp ./tmux.conf "$HOME/.tmux.conf" || error ".tmux.conf copy failed."
+cp ./.tmux.conf "$HOME/.tmux.conf" || error ".tmux.conf copy failed."
 
 info "Copying alacritty.toml from local directory..."
 mkdir -p "$HOME/.config/alacritty"
