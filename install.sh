@@ -7,9 +7,12 @@ RED='\033[1;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
+
 info() { echo -e "${GREEN}[+] $1${NC}"; }
 warn() { echo -e "${YELLOW}[-] $1${NC}"; }
 error() { echo -e "${RED}[!] $1${NC}"; exit 1; }
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ───[ Installer Setup ]───
 INSTALLER="apt-get"
@@ -80,11 +83,12 @@ fi
 
 # ───[ Copy Dotfiles Locally ]───
 info "Copying .tmux.conf from local directory..."
-cp ./.tmux.conf "$HOME/.tmux.conf" || error ".tmux.conf copy failed."
+cp "$SCRIPT_DIR/.tmux.conf" "$HOME/.tmux.conf" || error ".tmux.conf copy failed."
 
 info "Copying alacritty.toml from local directory..."
 mkdir -p "$HOME/.config/alacritty"
-cp ./alacritty.toml "$HOME/.config/alacritty/alacritty.toml" || error "alacritty.toml copy failed."
+cp "$SCRIPT_DIR/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml" || error "alacritty.toml copy failed."
+
 
 # ───[ Optional: VPN Script Setup ]───
 if [ -f ./vpn.sh ]; then
@@ -125,14 +129,14 @@ git clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$ZSH_CU
 
 # ───[ Copy multiline theme and shell extras from local directory ]───
 if [ -f "./multiline.zsh-theme" ]; then
-    cp "./multiline.zsh-theme" "$ZSH_CUSTOM/themes/multiline.zsh-theme"
+    cp "$SCRIPT_DIR/multiline.zsh-theme" "$ZSH_CUSTOM/themes/multiline.zsh-theme"
     info "Custom multiline.zsh-theme installed to $ZSH_CUSTOM/themes."
 else
     warn "multiline.zsh-theme not found in current directory."
 fi
 
 if [ -f "./.shell_extras.zsh" ]; then
-    cp "./.shell_extras.zsh" "$HOME/.shell_extras.zsh"
+    cp "$SCRIPT_DIR/.shell_extras.zsh" "$HOME/.shell_extras.zsh"
     info ".shell_extras.zsh copied to home directory."
 else
     warn ".shell_extras.zsh not found in current directory."
@@ -143,7 +147,7 @@ if [ -f "$HOME/.zshrc" ]; then
     cp "$HOME/.zshrc" "$HOME/.zshrc.backup"
     info "Backed up existing .zshrc to .zshrc.backup"
 fi
-cp ./.zshrc "$HOME/.zshrc" && info "Copied .zshrc from local directory."
+cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"&& info "Copied .zshrc from local directory."
 
 # Append shell extras sourcing if not already present
 if [ -f "$HOME/.shell_extras.zsh" ]; then
