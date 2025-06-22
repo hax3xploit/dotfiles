@@ -91,13 +91,14 @@ cp "$SCRIPT_DIR/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml" || erro
 
 
 # ───[ Optional: VPN Script Setup ]───
-if [ -f ./vpn.sh ]; then
-    sudo cp ./vpn.sh /opt/vpn.sh
+if [ -f "$SCRIPT_DIR/vpn.sh" ]; then
+    sudo cp "$SCRIPT_DIR/vpn.sh" /opt/vpn.sh
     sudo chmod +x /opt/vpn.sh
     info "vpn.sh installed to /opt/vpn.sh"
 else
-    warn "vpn.sh not found in current directory (optional)."
+    warn "vpn.sh not found in script directory (optional)."
 fi
+
 
 # ───[ Auto-Install Tmux Plugins ]───
 info "Installing tmux plugins..."
@@ -127,19 +128,19 @@ git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/
 git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" 2>/dev/null || info "zsh-syntax-highlighting already exists."
 git clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$ZSH_CUSTOM/plugins/fast-syntax-highlighting" 2>/dev/null || info "fast-syntax-highlighting already exists."
 
-# ───[ Copy multiline theme and shell extras from local directory ]───
-if [ -f "./multiline.zsh-theme" ]; then
+# ───[ Copy multiline theme and shell extras from script directory ]───
+if [ -f "$SCRIPT_DIR/multiline.zsh-theme" ]; then
     cp "$SCRIPT_DIR/multiline.zsh-theme" "$ZSH_CUSTOM/themes/multiline.zsh-theme"
     info "Custom multiline.zsh-theme installed to $ZSH_CUSTOM/themes."
 else
-    warn "multiline.zsh-theme not found in current directory."
+    warn "multiline.zsh-theme not found in script directory."
 fi
 
-if [ -f "./.shell_extras.zsh" ]; then
+if [ -f "$SCRIPT_DIR/.shell_extras.zsh" ]; then
     cp "$SCRIPT_DIR/.shell_extras.zsh" "$HOME/.shell_extras.zsh"
     info ".shell_extras.zsh copied to home directory."
 else
-    warn ".shell_extras.zsh not found in current directory."
+    warn ".shell_extras.zsh not found in script directory."
 fi
 
 # ───[ Replace .zshrc with local copy and back up existing ]───
@@ -147,7 +148,12 @@ if [ -f "$HOME/.zshrc" ]; then
     cp "$HOME/.zshrc" "$HOME/.zshrc.backup"
     info "Backed up existing .zshrc to .zshrc.backup"
 fi
-cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc"&& info "Copied .zshrc from local directory."
+
+if [ -f "$SCRIPT_DIR/.zshrc" ]; then
+    cp "$SCRIPT_DIR/.zshrc" "$HOME/.zshrc" && info "Copied .zshrc from script directory."
+else
+    warn ".zshrc not found in script directory."
+fi
 
 # Append shell extras sourcing if not already present
 if [ -f "$HOME/.shell_extras.zsh" ]; then
@@ -160,6 +166,7 @@ if [ -f "$HOME/.shell_extras.zsh" ]; then
 else
     warn "Skipped appending to .zshrc — shell extras not available."
 fi
+
 
 # Change default shell to zsh
 if command -v zsh >/dev/null && [ "$SHELL" != "$(command -v zsh)" ]; then
